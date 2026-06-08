@@ -157,6 +157,7 @@ class ProfileScreen extends StatelessWidget {
                               TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
                               TextButton(
                                 onPressed: () {
+                                  AppState().logout();
                                   Navigator.pop(context);
                                   Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
                                 },

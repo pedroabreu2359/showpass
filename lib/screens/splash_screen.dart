@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/app_state.dart';
 import '../theme/app_theme.dart';
 import '../routes/app_routes.dart';
 
@@ -21,9 +22,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _fadeAnim = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeIn));
     _scaleAnim = Tween<double>(begin: 0.7, end: 1).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
     _ctrl.forward();
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) Navigator.pushReplacementNamed(context, AppRoutes.login);
-    });
+    _init();
+  }
+
+  Future<void> _init() async {
+    print('🟡 iniciando load...');
+    await Future.wait([
+      AppState().loadFromDatabase(),
+      Future.delayed(const Duration(seconds: 3)),
+    ]);
+    print('load concluído, user: ${AppState().user?.name}');
+    if (!mounted) return;
+
+    final destination = AppState().user != null ? AppRoutes.home : AppRoutes.login;
+    Navigator.pushReplacementNamed(context, destination);
   }
 
   @override

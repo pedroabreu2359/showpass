@@ -12,8 +12,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailCtrl = TextEditingController(text: 'lucas@email.com');
-  final _passCtrl = TextEditingController(text: '••••••••');
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
   bool _loading = false;
   bool _obscure = true;
 
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
     await Future.delayed(const Duration(seconds: 1));
     if (!mounted) return;
-    AppState().login('Lucas Ferreira', _emailCtrl.text);
+    AppState().login(_nameCtrl.text.isEmpty ? 'Usuário' : _nameCtrl.text, _emailCtrl.text);
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
@@ -29,8 +30,16 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-    AppState().login('Lucas Ferreira', 'lucas@${provider.toLowerCase()}.com');
+    AppState().login('Usuário', 'usuario@${provider.toLowerCase()}.com');
     Navigator.pushReplacementNamed(context, AppRoutes.home);
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -77,6 +86,8 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
+                  _Field(label: 'NOME', controller: _nameCtrl, hint: 'Seu nome', icon: Icons.person_outline),
+                  const SizedBox(height: 12),
                   _Field(label: 'E-MAIL', controller: _emailCtrl, hint: 'seu@email.com', icon: Icons.email_outlined),
                   const SizedBox(height: 12),
                   _Field(
