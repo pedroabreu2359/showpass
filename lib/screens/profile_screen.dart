@@ -4,9 +4,56 @@ import '../routes/app_routes.dart';
 import '../services/app_state.dart';
 import '../widgets/shared_widgets.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final bool embedded;
   const ProfileScreen({super.key, this.embedded = false});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  void _showEditProfileDialog(BuildContext context) {
+    final state = AppState();
+    final nameCtrl = TextEditingController(text: state.user?.name ?? '');
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Editar perfil', style: TextStyle(color: AppColors.textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Nome',
+                labelStyle: TextStyle(color: AppColors.textMuted),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (nameCtrl.text.trim().isNotEmpty) {
+                state.updateName(nameCtrl.text.trim());
+                Navigator.pop(context);
+                setState(() {}); // atualiza a tela
+              }
+            },
+            child: const Text('Salvar', style: TextStyle(color: AppColors.pink)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
             // Header
             Container(
               color: AppColors.bgMid,
-              padding: EdgeInsets.fromLTRB(20, embedded ? 60 : MediaQuery.of(context).padding.top + 16, 20, 20),
+              padding: EdgeInsets.fromLTRB(20, widget.embedded ? 60 : MediaQuery.of(context).padding.top + 16, 20, 20),
               child: Column(
                 children: [
                   CircleAvatar(
@@ -76,10 +123,34 @@ class ProfileScreen extends StatelessWidget {
                   const SectionHeader(title: 'Conta'),
                   const SizedBox(height: 10),
                   _MenuCard(items: [
-                    _MenuItem(icon: Icons.confirmation_number_outlined, label: 'Histórico de compras', value: '${tickets.length} ingressos', onTap: () {}),
-                    _MenuItem(icon: Icons.favorite_border, label: 'Eventos favoritos', value: '${favorites.length} eventos', onTap: () {}),
-                    _MenuItem(icon: Icons.notifications_outlined, label: 'Notificações', value: '', onTap: () {}),
-                    _MenuItem(icon: Icons.card_giftcard, label: 'Meus vouchers', value: '', onTap: () {}),
+                    _MenuItem(
+                      icon: Icons.confirmation_number_outlined,
+                      label: 'Histórico de compras',
+                      value: '${tickets.length} ingressos',
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.myTickets),
+                    ),
+                    _MenuItem(
+                      icon: Icons.favorite_border,
+                      label: 'Eventos favoritos',
+                      value: '${favorites.length} eventos',
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.search),
+                    ),
+                    _MenuItem(
+                      icon: Icons.notifications_outlined,
+                      label: 'Notificações',
+                      value: '',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Notificações em breve!'), behavior: SnackBarBehavior.floating),
+                      ),
+                    ),
+                    _MenuItem(
+                      icon: Icons.card_giftcard,
+                      label: 'Meus vouchers',
+                      value: '',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Vouchers em breve!'), behavior: SnackBarBehavior.floating),
+                      ),
+                    ),
                   ]),
                 ],
               ),
@@ -134,10 +205,39 @@ class ProfileScreen extends StatelessWidget {
                   const SectionHeader(title: 'Configurações'),
                   const SizedBox(height: 10),
                   _MenuCard(items: [
-                    _MenuItem(icon: Icons.person_outline, label: 'Editar perfil', value: '', onTap: () {}),
-                    _MenuItem(icon: Icons.lock_outlined, label: 'Privacidade', value: '', onTap: () {}),
-                    _MenuItem(icon: Icons.help_outline, label: 'Ajuda e suporte', value: '', onTap: () {}),
-                    _MenuItem(icon: Icons.info_outline, label: 'Sobre o ShowPass', value: 'v1.0.0', onTap: () {}),
+                    _MenuItem(
+                      icon: Icons.person_outline,
+                      label: 'Editar perfil',
+                      value: '',
+                      onTap: () => _showEditProfileDialog(context),
+                    ),
+                    _MenuItem(
+                      icon: Icons.lock_outlined,
+                      label: 'Privacidade',
+                      value: '',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Privacidade em breve!'), behavior: SnackBarBehavior.floating),
+                      ),
+                    ),
+                    _MenuItem(
+                      icon: Icons.help_outline,
+                      label: 'Ajuda e suporte',
+                      value: '',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Suporte: suporte@showpass.app'), behavior: SnackBarBehavior.floating),
+                      ),
+                    ),
+                    _MenuItem(
+                      icon: Icons.info_outline,
+                      label: 'Sobre o ShowPass',
+                      value: 'v1.0.0',
+                      onTap: () => showAboutDialog(
+                        context: context,
+                        applicationName: 'ShowPass',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese: '© 2025 ShowPass',
+                      ),
+                    ),
                   ]),
                   const SizedBox(height: 12),
                   _MenuCard(items: [

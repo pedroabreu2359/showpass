@@ -12,31 +12,57 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _loading = false;
   bool _obscure = true;
 
   void _login() async {
+    final email = _emailCtrl.text.trim();
+    final pass = _passCtrl.text;
+
+    if (email.isEmpty || pass.isEmpty) {
+      _showError('Preencha e-mail e senha.');
+      return;
+    }
+
     setState(() => _loading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    final error = await AppState().login(email, pass);
     if (!mounted) return;
-    AppState().login(_nameCtrl.text.isEmpty ? 'Usuário' : _nameCtrl.text, _emailCtrl.text);
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+    setState(() => _loading = false);
+
+    if (error != null) {
+      _showError(error);
+    } else {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
   }
 
   void _loginWith(String provider) async {
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
+    await AppState().loginWithProvider(provider, 'Usuário $provider');
     if (!mounted) return;
-    AppState().login('Usuário', 'usuario@${provider.toLowerCase()}.com');
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+    setState(() => _loading = false);
+
+    final isNew = AppState().user?.musicPreferences.isEmpty ?? true;
+    Navigator.pushReplacementNamed(
+      context,
+      isNew ? AppRoutes.musicTaste : AppRoutes.home,
+    );
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passCtrl.dispose();
     super.dispose();
@@ -56,8 +82,11 @@ class _LoginScreenState extends State<LoginScreen> {
               color: AppColors.bgMid,
               child: Stack(
                 children: [
-                  const Positioned(right: -20, top: -20,
-                    child: Text('🎵', style: TextStyle(fontSize: 120, color: Colors.white10)),
+                  const Positioned(
+                    right: -20,
+                    top: -20,
+                    child: Text('🎵',
+                        style: TextStyle(fontSize: 120, color: Colors.white10)),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 80, 24, 24),
@@ -66,15 +95,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Row(children: [
-                          Container(width: 32, height: 32, decoration: BoxDecoration(color: AppColors.purple, borderRadius: BorderRadius.circular(8)),
-                            child: const Center(child: Text('🎟', style: TextStyle(fontSize: 16)))),
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                                color: AppColors.purple,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: const Center(
+                                child: Text('🎟',
+                                    style: TextStyle(fontSize: 16))),
+                          ),
                           const SizedBox(width: 8),
-                          const Text('ShowPass', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
+                          const Text('ShowPass',
+                              style: TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800)),
                         ]),
                         const SizedBox(height: 12),
-                        const Text('Bem-vindo! 👋', style: TextStyle(color: AppColors.textPrimary, fontSize: 24, fontWeight: FontWeight.w800)),
+                        const Text('Bem-vindo! 👋',
+                            style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800)),
                         const SizedBox(height: 4),
-                        const Text('Entre para descobrir os melhores eventos', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                        const Text('Entre para descobrir os melhores eventos',
+                            style: TextStyle(
+                                color: AppColors.textMuted, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -86,15 +133,26 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  _Field(label: 'NOME', controller: _nameCtrl, hint: 'Seu nome', icon: Icons.person_outline),
-                  const SizedBox(height: 12),
-                  _Field(label: 'E-MAIL', controller: _emailCtrl, hint: 'seu@email.com', icon: Icons.email_outlined),
+                  _Field(
+                      label: 'E-MAIL',
+                      controller: _emailCtrl,
+                      hint: 'seu@email.com',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress),
                   const SizedBox(height: 12),
                   _Field(
-                    label: 'SENHA', controller: _passCtrl, hint: '••••••••',
-                    icon: Icons.lock_outline, obscure: _obscure,
+                    label: 'SENHA',
+                    controller: _passCtrl,
+                    hint: '••••••••',
+                    icon: Icons.lock_outline,
+                    obscure: _obscure,
                     suffix: IconButton(
-                      icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: AppColors.textMuted, size: 18),
+                      icon: Icon(
+                          _obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.textMuted,
+                          size: 18),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
@@ -103,28 +161,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {},
-                      child: const Text('Esqueceu a senha?', style: TextStyle(color: AppColors.pink, fontSize: 12)),
+                      child: const Text('Esqueceu a senha?',
+                          style: TextStyle(color: AppColors.pink, fontSize: 12)),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  PrimaryButton(label: 'Entrar', onTap: _login, isLoading: _loading),
+                  PrimaryButton(
+                      label: 'Entrar', onTap: _login, isLoading: _loading),
                   const SizedBox(height: 20),
                   Row(children: [
                     Expanded(child: Divider(color: AppColors.border)),
-                    const Padding(padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('ou continue com', style: TextStyle(color: AppColors.textMuted, fontSize: 11))),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('ou continue com',
+                          style: TextStyle(
+                              color: AppColors.textMuted, fontSize: 11)),
+                    ),
                     Expanded(child: Divider(color: AppColors.border)),
                   ]),
                   const SizedBox(height: 16),
-                  _SocialButton(label: 'Entrar com Google', emoji: 'G', color: Colors.white, textColor: Colors.black, onTap: () => _loginWith('Google')),
+                  _SocialButton(
+                      label: 'Entrar com Google',
+                      emoji: 'G',
+                      color: Colors.white,
+                      textColor: Colors.black,
+                      onTap: () => _loginWith('Google')),
                   const SizedBox(height: 10),
-                  _SocialButton(label: 'Entrar com Apple', emoji: '🍎', color: Colors.black, textColor: Colors.white, onTap: () => _loginWith('Apple')),
+                  _SocialButton(
+                      label: 'Entrar com Apple',
+                      emoji: '🍎',
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      onTap: () => _loginWith('Apple')),
                   const SizedBox(height: 24),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Text('Não tem conta? ', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                    const Text('Não tem conta? ',
+                        style: TextStyle(
+                            color: AppColors.textMuted, fontSize: 13)),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.signup),
-                      child: const Text('Criar conta', style: TextStyle(color: AppColors.pink, fontWeight: FontWeight.w700, fontSize: 13)),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.signup),
+                      child: const Text('Criar conta',
+                          style: TextStyle(
+                              color: AppColors.pink,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13)),
                     ),
                   ]),
                 ],
@@ -143,19 +224,34 @@ class _Field extends StatelessWidget {
   final IconData icon;
   final bool obscure;
   final Widget? suffix;
+  final TextInputType? keyboardType;
 
-  const _Field({required this.label, required this.controller, required this.hint, required this.icon, this.obscure = false, this.suffix});
+  const _Field({
+    required this.label,
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.obscure = false,
+    this.suffix,
+    this.keyboardType,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1)),
+        Text(label,
+            style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1)),
         const SizedBox(height: 6),
         TextField(
           controller: controller,
           obscureText: obscure,
+          keyboardType: keyboardType,
           style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
@@ -174,7 +270,12 @@ class _SocialButton extends StatelessWidget {
   final Color color, textColor;
   final VoidCallback onTap;
 
-  const _SocialButton({required this.label, required this.emoji, required this.color, required this.textColor, required this.onTap});
+  const _SocialButton(
+      {required this.label,
+        required this.emoji,
+        required this.color,
+        required this.textColor,
+        required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -186,16 +287,26 @@ class _SocialButton extends StatelessWidget {
           side: const BorderSide(color: AppColors.border),
           backgroundColor: AppColors.bgSurface,
           padding: const EdgeInsets.symmetric(vertical: 13),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Container(
-            width: 20, height: 20,
-            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-            child: Center(child: Text(emoji, style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.w800))),
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+                color: color, borderRadius: BorderRadius.circular(4)),
+            child: Center(
+                child: Text(emoji,
+                    style: TextStyle(
+                        color: textColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800))),
           ),
           const SizedBox(width: 10),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(label,
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 13)),
         ]),
       ),
     );

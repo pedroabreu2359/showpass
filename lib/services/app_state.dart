@@ -33,12 +33,11 @@ class AppState extends ChangeNotifier {
   List<EventModel> get favorites => _events.where((e) => e.isFavorite).toList();
 
   // ── INICIALIZAÇÃO ─────────────────────────────────
-  // Chamar no splash screen antes de navegar
+
   Future<void> loadFromDatabase() async {
     _user = await _db.loadUser();
     if (_user != null) {
       _preferences = _user!.musicPreferences;
-      // só carrega tickets e favoritos se tiver usuário salvo
       final favIds = await _db.loadFavoriteIds();
       for (final e in _events) {
         e.isFavorite = favIds.contains(e.id);
@@ -50,52 +49,130 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── LOGIN / LOGOUT ────────────────────────────────
-  void login(String name, String email) {
-    // se o email for diferente do salvo, limpa tudo antes
-    if (_user != null && _user!.email != email) {
-      logout(); // limpa banco e estado
+  // ── LOGIN ─────────────────────────────────────────
+
+  /// Tenta logar com email + senha.
+  /// Retorna null em caso de sucesso; mensagem de erro caso contrário.
+  Future<String?> login(String email, String password) async {
+    if (email.trim().isEmpty || password.isEmpty) {
+      return 'Preencha e-mail e senha.';
     }
 
-    _user = UserModel(
-      id: 'user_${email.hashCode.abs()}', // ID único por email
-      name: name,
-      email: email,
-      musicPreferences: _preferences,
-    );
-    _db.saveUser(_user!);
-    if (_tickets.isEmpty) _addDemoTicket();
+    final found = await _db.findUserByEmailAndPassword(
+        email.trim().toLowerCase(), password);
+
+    if (found == null) {
+      final emailRegistered = await _db.emailExists(email.trim().toLowerCase());
+      if (!emailRegistered) return 'E-mail não cadastrado.';
+      return 'Senha incorreta.';
+    }
+
+    _user = found;
+    _preferences = found.musicPreferences;
+    await _db.setLoggedIn(found.id, true);
+
+    final favIds = await _db.loadFavoriteIds();
+    for (final e in _events) {
+      e.isFavorite = favIds.contains(e.id);
+    }
+    _tickets
+      ..clear()
+      ..addAll(await _db.loadTickets());
+
+    notifyListeners();
+    return null; // sucesso
+  }
+
+  /// Login via provedor social (Google / Apple).
+  /// Cria conta se não existir, loga diretamente se já existir.
+  Future<void> loginWithProvider(String providerName, String displayName) async {
+    final email =
+        '${displayName.toLowerCase().replaceAll(' ', '.')}.${providerName.toLowerCase()}@socialauth.showpass';
+    final socialPassword = 'social_${providerName.toLowerCase()}_auth';
+
+    final existing = await _db.findUserByEmailAndPassword(email, socialPassword);
+    if (existing != null) {
+      await _db.setLoggedIn(existing.id, true);
+      _user = existing;
+      _preferences = existing.musicPreferences;
+      final favIds = await _db.loadFavoriteIds();
+      for (final e in _events) {
+        e.isFavorite = favIds.contains(e.id);
+      }
+      _tickets
+        ..clear()
+        ..addAll(await _db.loadTickets());
+    } else {
+      final newUser = UserModel(
+        id: 'user_${email.hashCode.abs()}',
+        name: displayName,
+        email: email,
+        password: socialPassword,
+        musicPreferences: [],
+      );
+      await _db.saveUser(newUser);
+      await _db.setLoggedIn(newUser.id, true); // ← novo cadastro
+      _user = newUser;
+      _preferences = [];
+    }
     notifyListeners();
   }
 
-  void logout() {
+  void updateName(String newName) {
+    if (_user == null) return;
+    _user = UserModel(
+      id: _user!.id,
+      name: newName,
+      email: _user!.email,
+      password: _user!.password,
+      musicPreferences: _user!.musicPreferences,
+    );
+    _db.saveUser(_user!);
+    notifyListeners();
+  }
+
+  void logout() async {
+    if (_user != null) {
+      await _db.setLoggedIn(_user!.id, false);
+    }
     _user = null;
     _preferences = [];
     _tickets.clear();
     for (final e in _events) {
       e.isFavorite = false;
     }
-    _db.deleteUser();
     notifyListeners();
   }
 
-  void _addDemoTicket() {
-    final event = _events.first;
-    final ticket = PurchasedTicket(
-      id: 'tkt_demo_001',
-      event: event,
-      ticketType: event.ticketTypes[1],
-      quantity: 2,
-      totalPrice: event.ticketTypes[1].price * 2,
-      purchaseDate: '01 Jun 2025',
-      seatCode: 'VIP A-14',
-      qrCode: 'SP-CLD-20250722-VIP-A14#4F2BX9',
+  // ── SIGNUP ────────────────────────────────────────
+
+  /// Cria nova conta.
+  /// Retorna null em caso de sucesso; mensagem de erro caso contrário.
+  Future<String?> signup(String name, String email, String password) async {
+    if (name.trim().isEmpty || email.trim().isEmpty || password.isEmpty) {
+      return 'Preencha todos os campos.';
+    }
+
+    final alreadyExists = await _db.emailExists(email.trim().toLowerCase());
+    if (alreadyExists) return 'E-mail já cadastrado.';
+
+    final newUser = UserModel(
+      id: 'user_${email.trim().hashCode.abs()}',
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password: password,
+      musicPreferences: [],
     );
-    _tickets.insert(0, ticket);
-    _db.saveTicket(ticket);
+    await _db.saveUser(newUser);
+    await _db.setLoggedIn(newUser.id, true);
+    _user = newUser;
+    _preferences = [];
+    notifyListeners();
+    return null; // sucesso
   }
 
   // ── PREFERÊNCIAS ──────────────────────────────────
+
   void savePreferences(List<String> prefs) {
     _preferences = prefs;
     if (_user != null) {
@@ -103,6 +180,7 @@ class AppState extends ChangeNotifier {
         id: _user!.id,
         name: _user!.name,
         email: _user!.email,
+        password: _user!.password,
         musicPreferences: prefs,
       );
       _db.saveUser(_user!);
@@ -111,6 +189,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ── FAVORITOS ─────────────────────────────────────
+
   void toggleFavorite(String eventId) {
     final idx = _events.indexWhere((e) => e.id == eventId);
     if (idx != -1) {
@@ -125,6 +204,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ── COMPRA DE TICKET ──────────────────────────────
+
   PurchasedTicket purchaseTicket({
     required EventModel event,
     required TicketType ticketType,
@@ -148,6 +228,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ── RECOMENDAÇÕES ─────────────────────────────────
+
   List<EventModel> getRecommended() {
     if (_preferences.isEmpty) return featuredEvents;
     final result =
@@ -157,6 +238,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ── HELPERS PRIVADOS ──────────────────────────────
+
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')} ${_months[d.month - 1]} ${d.year}';
 
