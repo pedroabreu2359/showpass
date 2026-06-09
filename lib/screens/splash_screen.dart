@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   decoration: BoxDecoration(
                     color: AppColors.purple,
                     borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: AppColors.pink.withOpacity(0.4), width: 2),
+                    border: Border.all(color: AppColors.pink.withValues(alpha: 0.4), width: 2),
                   ),
                   child: const Center(child: Text('🎟', style: TextStyle(fontSize: 38))),
                 ),

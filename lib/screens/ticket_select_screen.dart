@@ -67,7 +67,7 @@ class _TicketSelectScreenState extends State<TicketSelectScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.purple.withOpacity(0.12) : AppColors.bgCard,
+                        color: selected ? AppColors.purple.withValues(alpha: 0.12) : AppColors.bgCard,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: selected ? AppColors.purple : AppColors.border, width: selected ? 1.5 : 1),
                       ),

@@ -44,7 +44,6 @@ class AppTheme {
         primary: AppColors.purple,
         secondary: AppColors.pink,
         surface: AppColors.bgSurface,
-        background: AppColors.bgDeep,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: AppColors.textPrimary,

@@ -29,8 +29,11 @@ class _MusicTasteScreenState extends State<MusicTasteScreen> {
 
   void _toggle(String label) {
     setState(() {
-      if (_selected.contains(label)) _selected.remove(label);
-      else _selected.add(label);
+      if (_selected.contains(label)) {
+        _selected.remove(label);
+      } else {
+        _selected.add(label);
+      }
     });
   }
 
@@ -66,7 +69,7 @@ class _MusicTasteScreenState extends State<MusicTasteScreen> {
                 Row(children: [
                   Expanded(child: Container(height: 3, decoration: BoxDecoration(color: AppColors.purple, borderRadius: BorderRadius.circular(2)))),
                   const SizedBox(width: 4),
-                  Expanded(child: Container(height: 3, decoration: BoxDecoration(color: AppColors.pink.withOpacity(0.5), borderRadius: BorderRadius.circular(2)))),
+                  Expanded(child: Container(height: 3, decoration: BoxDecoration(color: AppColors.pink.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(2)))),
                   const SizedBox(width: 4),
                   Expanded(child: Container(height: 3, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
                 ]),
@@ -94,7 +97,7 @@ class _MusicTasteScreenState extends State<MusicTasteScreen> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.purple.withOpacity(0.2) : AppColors.bgSurface,
+                        color: selected ? AppColors.purple.withValues(alpha: 0.2) : AppColors.bgSurface,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: selected ? AppColors.purple : AppColors.border,

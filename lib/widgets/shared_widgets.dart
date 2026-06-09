@@ -146,7 +146,7 @@ class CategoryChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.purple.withOpacity(0.2) : AppColors.bgSurface,
+          color: isSelected ? AppColors.purple.withValues(alpha: 0.2) : AppColors.bgSurface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: isSelected ? AppColors.purple : AppColors.border),
         ),
@@ -273,7 +273,7 @@ class GradientEventBanner extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
-                    colors: [Colors.transparent, AppColors.bgMid.withOpacity(0.95)],
+                    colors: [Colors.transparent, AppColors.bgMid.withValues(alpha: 0.95)],
                   ),
                 ),
               ),

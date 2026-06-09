@@ -36,7 +36,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             leading: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: AppColors.bgDeep.withOpacity(0.7), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: AppColors.bgDeep.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(8)),
                 child: const Icon(Icons.arrow_back, color: AppColors.textPrimary, size: 20),
               ),
               onPressed: () => Navigator.pop(context),
@@ -45,7 +45,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               IconButton(
                 icon: Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: AppColors.bgDeep.withOpacity(0.7), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: AppColors.bgDeep.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(8)),
                   child: Icon(_isFav ? Icons.favorite : Icons.favorite_border, color: AppColors.pink, size: 20),
                 ),
                 onPressed: _toggleFav,
@@ -67,7 +67,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Category badge
-                  AppBadge(label: ev.category, bgColor: AppColors.purple.withOpacity(0.3), textColor: AppColors.purpleLight),
+                  AppBadge(label: ev.category, bgColor: AppColors.purple.withValues(alpha: 0.3), textColor: AppColors.purpleLight),
                   const SizedBox(height: 10),
 
                   // Title
@@ -86,9 +86,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.warning.withOpacity(0.15),
+                      color: AppColors.warning.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.warning.withOpacity(0.4)),
+                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: const [

@@ -183,9 +183,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: prefs.map((p) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.purple.withOpacity(0.15),
+                            color: AppColors.purple.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.purple.withOpacity(0.4)),
+                            border: Border.all(color: AppColors.purple.withValues(alpha: 0.4)),
                           ),
                           child: Text(p, style: const TextStyle(color: AppColors.purpleLight, fontSize: 12, fontWeight: FontWeight.w600)),
                         )).toList(),
@@ -291,9 +291,9 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
     );

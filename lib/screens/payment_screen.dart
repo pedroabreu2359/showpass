@@ -103,7 +103,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.purple.withOpacity(0.08) : AppColors.bgCard,
+                    color: selected ? AppColors.purple.withValues(alpha: 0.08) : AppColors.bgCard,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: selected ? AppColors.purple : AppColors.border),
                   ),
@@ -112,7 +112,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Container(
                         width: 40, height: 26,
                         decoration: BoxDecoration(
-                          color: Color(m['color'] as int).withOpacity(0.2),
+                          color: Color(m['color'] as int).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Center(

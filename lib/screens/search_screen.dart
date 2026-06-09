@@ -113,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     duration: const Duration(milliseconds: 150),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
-                      color: _priceFilter == p ? AppColors.pink.withOpacity(0.2) : AppColors.bgSurface,
+                      color: _priceFilter == p ? AppColors.pink.withValues(alpha: 0.2) : AppColors.bgSurface,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: _priceFilter == p ? AppColors.pink : AppColors.border),
                     ),

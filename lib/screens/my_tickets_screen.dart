@@ -81,7 +81,7 @@ class _TicketPassState extends State<_TicketPass> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Color(int.parse('FF${ev.imageColor}', radix: 16)).withOpacity(0.4),
+                color: Color(int.parse('FF${ev.imageColor}', radix: 16)).withValues(alpha: 0.4),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
               ),
               child: Column(
@@ -206,9 +206,9 @@ class _Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w600)),
     );
