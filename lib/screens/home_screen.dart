@@ -16,6 +16,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _navIndex = 0;
+  bool _isInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is int) {
+        _navIndex = args;
+      }
+      _isInit = true;
+    }
+  }
+
   String _selectedCat = 'Pop';
 
   static const _categories = [

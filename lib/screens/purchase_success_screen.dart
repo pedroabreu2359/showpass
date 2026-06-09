@@ -92,11 +92,12 @@ class _PurchaseSuccessScreenState extends State<PurchaseSuccessScreen> with Sing
               PrimaryButton(
                 label: 'Ver meu ingresso',
                 onTap: () {
-                  Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (_) => false);
-                  // Navigate to tickets tab
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    Navigator.pushNamed(context, AppRoutes.myTickets);
-                  });
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    AppRoutes.home,
+                        (_) => false,
+                    arguments: 2,
+                  );
                 },
               ),
               const SizedBox(height: 12),
