@@ -77,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             // Header
             Container(
-              height: 200,
               width: double.infinity,
               color: AppColors.bgMid,
               child: Stack(

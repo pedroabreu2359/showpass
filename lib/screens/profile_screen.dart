@@ -6,7 +6,9 @@ import '../widgets/shared_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool embedded;
-  const ProfileScreen({super.key, this.embedded = false});
+  final Function(int)? onNavigate;
+
+  const ProfileScreen({super.key, this.embedded = false, this.onNavigate});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -124,16 +126,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 10),
                   _MenuCard(items: [
                     _MenuItem(
-                      icon: Icons.confirmation_number_outlined,
-                      label: 'Histórico de compras',
-                      value: '${tickets.length} ingressos',
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.myTickets),
-                    ),
-                    _MenuItem(
                       icon: Icons.favorite_border,
                       label: 'Eventos favoritos',
                       value: '${favorites.length} eventos',
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.search),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+                      ),
                     ),
                     _MenuItem(
                       icon: Icons.notifications_outlined,
@@ -367,6 +366,43 @@ class _MenuItem extends StatelessWidget {
           const SizedBox(width: 4),
           const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 16),
         ],
+      ),
+    );
+  }
+}
+
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final favorites = AppState().favorites;
+    return Scaffold(
+      backgroundColor: AppColors.bgDeep,
+      appBar: AppBar(
+        backgroundColor: AppColors.bgMid,
+        title: const Text('Eventos favoritos',
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        elevation: 0,
+      ),
+      body: favorites.isEmpty
+          ? const Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text('⭐', style: TextStyle(fontSize: 40)),
+          SizedBox(height: 12),
+          Text('Nenhum favorito ainda',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+        ]),
+      )
+          : ListView.builder(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+        itemCount: favorites.length,
+        itemBuilder: (_, i) => EventListTile(
+          event: favorites[i],
+          onTap: () => Navigator.pushNamed(context, AppRoutes.eventDetail,
+              arguments: favorites[i]),
+        ),
       ),
     );
   }

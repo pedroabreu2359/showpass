@@ -255,7 +255,7 @@ class GradientEventBanner extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 160,
+        height: 180,
         decoration: BoxDecoration(
           color: Color(int.parse('FF${event.imageColor}', radix: 16)),
           borderRadius: BorderRadius.circular(18),
@@ -290,7 +290,10 @@ class GradientEventBanner extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(event.name, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 6),
-                  Text('📅 ${event.date} · ${event.venue}', style: const TextStyle(color: AppColors.textMuted, fontSize: 9)),
+                  Text('📅 ${event.date} · ${event.venue}',
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),

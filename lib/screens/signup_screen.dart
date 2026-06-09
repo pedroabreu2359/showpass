@@ -81,7 +81,6 @@ class _SignupScreenState extends State<SignupScreen> {
         child: Column(
           children: [
             Container(
-              height: 180,
               width: double.infinity,
               color: AppColors.bgMid,
               child: Padding(

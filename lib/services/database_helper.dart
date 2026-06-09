@@ -20,7 +20,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'showpass.db');
     return openDatabase(
       path,
-      version: 3,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -40,13 +40,16 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE TABLE favorites (
-        event_id TEXT PRIMARY KEY
+        user_id TEXT NOT NULL,
+        event_id TEXT NOT NULL,
+        PRIMARY KEY (user_id, event_id)
       )
     ''');
 
     await db.execute('''
       CREATE TABLE tickets (
         id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
         event_id TEXT NOT NULL,
         ticket_type_id TEXT NOT NULL,
         quantity INTEGER NOT NULL,
@@ -58,7 +61,6 @@ class DatabaseHelper {
     ''');
   }
 
-  // Migração: versão 1 → 2 adiciona coluna password
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute(
@@ -67,6 +69,20 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       await db.execute(
           "ALTER TABLE user ADD COLUMN is_logged_in INTEGER NOT NULL DEFAULT 0");
+    }
+    if (oldVersion < 5) {
+      await db.execute(
+          "ALTER TABLE tickets ADD COLUMN user_id TEXT NOT NULL DEFAULT ''");
+    }
+    if (oldVersion < 6) {
+      await db.execute("DROP TABLE IF EXISTS favorites");
+      await db.execute('''
+        CREATE TABLE favorites (
+          user_id TEXT NOT NULL,
+          event_id TEXT NOT NULL,
+          PRIMARY KEY (user_id, event_id)
+        )
+      ''');
     }
   }
 
@@ -162,34 +178,46 @@ class DatabaseHelper {
 
   // ── FAVORITES ─────────────────────────────────────
 
-  Future<void> saveFavorite(String eventId) async {
+  Future<void> saveFavorite(String eventId, String userId) async {
     final db = await database;
     await db.insert(
       'favorites',
-      {'event_id': eventId},
+      {
+        'event_id': eventId,
+        'user_id': userId,
+      },
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
   }
 
-  Future<void> deleteFavorite(String eventId) async {
+  Future<void> deleteFavorite(String eventId, String userId) async {
     final db = await database;
-    await db.delete('favorites', where: 'event_id = ?', whereArgs: [eventId]);
+    await db.delete(
+        'favorites',
+        where: 'event_id = ? AND user_id = ?',
+        whereArgs: [eventId, userId]
+    );
   }
 
-  Future<Set<String>> loadFavoriteIds() async {
+  Future<Set<String>> loadFavoriteIds(String userId) async {
     final db = await database;
-    final rows = await db.query('favorites');
+    final rows = await db.query(
+        'favorites',
+        where: 'user_id = ?',
+        whereArgs: [userId] // Busca apenas os favoritos deste usuário!
+    );
     return rows.map((r) => r['event_id'] as String).toSet();
   }
 
   // ── TICKETS ───────────────────────────────────────
 
-  Future<void> saveTicket(PurchasedTicket ticket) async {
+  Future<void> saveTicket(PurchasedTicket ticket, String userId) async {
     final db = await database;
     await db.insert(
       'tickets',
       {
         'id': ticket.id,
+        'user_id': userId,
         'event_id': ticket.event.id,
         'ticket_type_id': ticket.ticketType.id,
         'quantity': ticket.quantity,
@@ -202,17 +230,17 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<PurchasedTicket>> loadTickets() async {
+  Future<List<PurchasedTicket>> loadTickets(String userId) async {
     final db = await database;
-    final rows = await db.query('tickets', orderBy: 'rowid DESC');
+    final rows = await db.query('tickets',
+        where: 'user_id = ?', whereArgs: [userId], orderBy: 'rowid DESC');
 
     final eventMap = {for (final e in MockEvents.all) e.id: e};
-
     final List<PurchasedTicket> result = [];
+
     for (final row in rows) {
       final event = eventMap[row['event_id'] as String];
       if (event == null) continue;
-
       final ticketType = event.ticketTypes
           .where((t) => t.id == row['ticket_type_id'] as String)
           .firstOrNull;

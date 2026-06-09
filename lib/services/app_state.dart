@@ -38,21 +38,21 @@ class AppState extends ChangeNotifier {
     _user = await _db.loadUser();
     if (_user != null) {
       _preferences = _user!.musicPreferences;
-      final favIds = await _db.loadFavoriteIds();
+      final favIds = await _db.loadFavoriteIds(_user!.id);
       for (final e in _events) {
         e.isFavorite = favIds.contains(e.id);
       }
       _tickets
         ..clear()
-        ..addAll(await _db.loadTickets());
+        ..addAll(await _db.loadTickets(_user!.id));
     }
     notifyListeners();
   }
 
   // ── LOGIN ─────────────────────────────────────────
 
-  /// Tenta logar com email + senha.
-  /// Retorna null em caso de sucesso; mensagem de erro caso contrário.
+  // Tenta logar com email + senha.
+  // Retorna null em caso de sucesso; mensagem de erro caso contrário.
   Future<String?> login(String email, String password) async {
     if (email.trim().isEmpty || password.isEmpty) {
       return 'Preencha e-mail e senha.';
@@ -71,20 +71,20 @@ class AppState extends ChangeNotifier {
     _preferences = found.musicPreferences;
     await _db.setLoggedIn(found.id, true);
 
-    final favIds = await _db.loadFavoriteIds();
+    final favIds = await _db.loadFavoriteIds(found.id);
     for (final e in _events) {
       e.isFavorite = favIds.contains(e.id);
     }
     _tickets
       ..clear()
-      ..addAll(await _db.loadTickets());
+      ..addAll(await _db.loadTickets(found.id));
 
     notifyListeners();
-    return null; // sucesso
+    return null;
   }
 
-  /// Login via provedor social (Google / Apple).
-  /// Cria conta se não existir, loga diretamente se já existir.
+  // Login via provedor social (Google / Apple).
+  // Cria conta se não existir, loga diretamente se já existir.
   Future<void> loginWithProvider(String providerName, String displayName) async {
     final email =
         '${displayName.toLowerCase().replaceAll(' ', '.')}.${providerName.toLowerCase()}@socialauth.showpass';
@@ -95,13 +95,13 @@ class AppState extends ChangeNotifier {
       await _db.setLoggedIn(existing.id, true);
       _user = existing;
       _preferences = existing.musicPreferences;
-      final favIds = await _db.loadFavoriteIds();
+      final favIds = await _db.loadFavoriteIds(existing.id);
       for (final e in _events) {
         e.isFavorite = favIds.contains(e.id);
       }
       _tickets
         ..clear()
-        ..addAll(await _db.loadTickets());
+        ..addAll(await _db.loadTickets(existing.id));
     } else {
       final newUser = UserModel(
         id: 'user_${email.hashCode.abs()}',
@@ -111,7 +111,7 @@ class AppState extends ChangeNotifier {
         musicPreferences: [],
       );
       await _db.saveUser(newUser);
-      await _db.setLoggedIn(newUser.id, true); // ← novo cadastro
+      await _db.setLoggedIn(newUser.id, true);
       _user = newUser;
       _preferences = [];
     }
@@ -146,8 +146,8 @@ class AppState extends ChangeNotifier {
 
   // ── SIGNUP ────────────────────────────────────────
 
-  /// Cria nova conta.
-  /// Retorna null em caso de sucesso; mensagem de erro caso contrário.
+  // Cria nova conta.
+  // Retorna null em caso de sucesso; mensagem de erro caso contrário.
   Future<String?> signup(String name, String email, String password) async {
     if (name.trim().isEmpty || email.trim().isEmpty || password.isEmpty) {
       return 'Preencha todos os campos.';
@@ -168,7 +168,7 @@ class AppState extends ChangeNotifier {
     _user = newUser;
     _preferences = [];
     notifyListeners();
-    return null; // sucesso
+    return null;
   }
 
   // ── PREFERÊNCIAS ──────────────────────────────────
@@ -191,13 +191,15 @@ class AppState extends ChangeNotifier {
   // ── FAVORITOS ─────────────────────────────────────
 
   void toggleFavorite(String eventId) {
+    if (_user == null) return;
+
     final idx = _events.indexWhere((e) => e.id == eventId);
     if (idx != -1) {
       _events[idx].isFavorite = !_events[idx].isFavorite;
       if (_events[idx].isFavorite) {
-        _db.saveFavorite(eventId);
+        _db.saveFavorite(eventId, _user!.id);
       } else {
-        _db.deleteFavorite(eventId);
+        _db.deleteFavorite(eventId, _user!.id);
       }
       notifyListeners();
     }
@@ -222,7 +224,7 @@ class AppState extends ChangeNotifier {
       '${event.city.substring(0, 2).toUpperCase()}-${event.id.toUpperCase()}-${ticketType.id.toUpperCase()}#${_randomCode()}',
     );
     _tickets.insert(0, ticket);
-    _db.saveTicket(ticket);
+    _db.saveTicket(ticket, _user!.id);
     notifyListeners();
     return ticket;
   }

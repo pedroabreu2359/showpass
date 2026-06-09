@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _init() async {
-    print('🟡 iniciando load...');
+    print('iniciando load...');
     await Future.wait([
       AppState().loadFromDatabase(),
       Future.delayed(const Duration(seconds: 3)),
