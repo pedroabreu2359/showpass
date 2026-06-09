@@ -126,6 +126,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 10),
                   _MenuCard(items: [
                     _MenuItem(
+                      icon: Icons.confirmation_num_outlined,
+                      label: 'Histórico de compras',
+                      value: '${tickets.length} ingressos',
+                      onTap: () {
+                        if (widget.embedded && widget.onNavigate != null) {
+                          widget.onNavigate!(2);
+                        } else {
+                          Navigator.pushNamed(context, AppRoutes.myTickets);
+                        }
+                      }
+                    ),
+                    _MenuItem(
                       icon: Icons.favorite_border,
                       label: 'Eventos favoritos',
                       value: '${favorites.length} eventos',

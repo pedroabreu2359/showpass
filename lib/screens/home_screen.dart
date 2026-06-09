@@ -247,7 +247,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _buildHome(),
       const SearchScreen(embedded: true),
       const MyTicketsScreen(embedded: true),
-      const ProfileScreen(embedded: true),
+      ProfileScreen(
+        embedded: true,
+        onNavigate: (index) => setState(() => _navIndex = index),
+      ),
     ];
 
     return Scaffold(
