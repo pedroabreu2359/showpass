@@ -1,6 +1,6 @@
-# ShowPass 🎟 — Premium Ticket App
+# ShowPass 🎟
 
-Aplicativo Flutter de venda de ingressos para shows e eventos, desenvolvido como projeto universitário de alto nível.
+Aplicativo Flutter de venda de ingressos para shows e eventos, desenvolvido para um projeto de faculdade.
 
 ## Identidade Visual
 
@@ -22,51 +22,15 @@ Aplicativo Flutter de venda de ingressos para shows e eventos, desenvolvido como
 - Meus Ingressos com ingresso digital e QR Code real
 - Perfil com histórico, favoritos e preferências musicais
 
-## Catálogo de Eventos (30+)
+## Catálogo de Eventos (mockados)
 
 - Shows internacionais: Coldplay, The Weeknd, Bruno Mars, Dua Lipa, Ed Sheeran, Olivia Rodrigo, Taylor Swift, Imagine Dragons
 - Shows nacionais: Ivete Sangalo, Alok, Ana Castela, Jorge & Mateus, Gusttavo Lima, Luan Santana, Zé Neto & Cristiano, Matheus & Kauan
 - Festivais: Lollapalooza, Rock in Rio, The Town, Tomorrowland Brasil, Ultra Music Festival
 - Teatro: O Fantasma da Ópera, Wicked, Stand-up Comedy Festival
 - Esportes: Final Libertadores, NBB Finals, UFC Fight Night, Superliga de Vôlei
-- Funk: Baile do Anitta
+- Funk: Anitta
 - Trap: Trap Brasil Festival
-
-## Estrutura
-
-```
-lib/
-├── main.dart
-├── models/
-│   ├── event_model.dart
-│   ├── ticket_model.dart
-│   └── user_model.dart
-├── screens/
-│   ├── splash_screen.dart
-│   ├── login_screen.dart
-│   ├── signup_screen.dart
-│   ├── music_taste_screen.dart
-│   ├── home_screen.dart
-│   ├── search_screen.dart
-│   ├── event_detail_screen.dart
-│   ├── ticket_select_screen.dart
-│   ├── payment_screen.dart
-│   ├── purchase_success_screen.dart
-│   ├── my_tickets_screen.dart
-│   └── profile_screen.dart
-├── widgets/
-│   └── shared_widgets.dart
-├── services/
-│   └── app_state.dart
-├── routes/
-│   └── app_routes.dart
-├── theme/
-│   └── app_theme.dart
-├── data/
-│   └── mock_events.dart
-└── utils/
-    └── app_utils.dart
-```
 
 ## Como rodar
 
@@ -96,16 +60,8 @@ intl: ^0.19.0               # Formatação de datas/moedas
 qr_flutter: ^4.1.0          # QR Code real nos ingressos
 ```
 
-## Fluxo de Navegação
-
-```
-Splash → Login → Cadastro → Gostos Musicais → Home
-Home → Detalhes do Evento → Seleção de Ingressos → Pagamento → Sucesso → Meus Ingressos
-Home (tab) → Buscar
-Home (tab) → Meus Ingressos  
-Home (tab) → Perfil
-```
-
 ---
 
-Projeto desenvolvido com Flutter 3 + Material 3 + Dark Mode Premium.
+Projeto desenvolvido com Flutter
+
+Grupo: Pedro Henrique Medeiros, Marcos Alves Vital, Lucas Alexandre, Gabriela Sátiro e Camilla Eloy
